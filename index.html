@@ -1,823 +1,546 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Happy Rose Day 🌹</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital@1&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital@1&display=swap" rel="stylesheet"/>
   <style>
-    /* ========== RESET & BASE ========== */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     body {
       overflow-x: hidden;
-      font-family: 'Playfair Display', serif;
       background: #0a0000;
+      font-family: 'Playfair Display', serif;
     }
 
-    /* ========== SCROLL SPACER ========== */
-    .scroll-container {
-      height: 600vh;
-      position: relative;
-    }
+    .scroll-spacer { height: 700vh; }
 
-    /* ========== FIXED SCENE ========== */
+    /* ===== FIXED SCENE ===== */
     .scene {
       position: fixed;
       top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 100vw; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
       overflow: hidden;
-      z-index: 1;
     }
 
-    /* ========== BACKGROUND ========== */
     .bg {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 60%, #1a0508 0%, #0a0000 70%);
-      transition: background 0.8s ease;
-    }
-    .bg::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 50%, rgba(180, 20, 50, 0.08) 0%, transparent 70%);
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, #1a0508, #0a0000);
     }
 
-    /* ========== VIGNETTE ========== */
     .vignette {
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       box-shadow: inset 0 0 200px rgba(0,0,0,0.8);
-      pointer-events: none;
-      z-index: 100;
+      pointer-events: none; z-index: 100;
     }
 
-    /* ========== SCROLL HINT ========== */
+    /* ===== SVG ROSE ===== */
+    #roseSvg {
+      width: min(75vw, 75vh, 480px);
+      height: auto;
+      z-index: 10;
+      transition: opacity 1s, transform 1s;
+    }
+
+    /* ===== SCROLL HINT ===== */
     .scroll-hint {
-      position: fixed;
-      bottom: 40px;
-      left: 50%;
+      position: fixed; bottom: 40px; left: 50%;
       transform: translateX(-50%);
-      z-index: 200;
-      text-align: center;
-      color: rgba(255, 180, 190, 0.7);
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: 14px;
-      letter-spacing: 2px;
-      transition: opacity 0.8s ease;
+      z-index: 200; text-align: center;
+      color: rgba(255,180,190,0.7);
+      font-style: italic; font-size: 14px; letter-spacing: 2px;
+      transition: opacity 0.8s;
     }
     .scroll-hint .arrow {
-      display: block;
-      margin: 8px auto 0;
-      width: 20px;
-      height: 20px;
-      border-right: 2px solid rgba(255, 180, 190, 0.5);
-      border-bottom: 2px solid rgba(255, 180, 190, 0.5);
+      display: block; margin: 8px auto 0;
+      width: 20px; height: 20px;
+      border-right: 2px solid rgba(255,180,190,0.5);
+      border-bottom: 2px solid rgba(255,180,190,0.5);
       transform: rotate(45deg);
-      animation: bounceArrow 2s ease infinite;
+      animation: bounce 2s ease infinite;
     }
-    @keyframes bounceArrow {
-      0%, 100% { transform: rotate(45deg) translateY(0); }
+    @keyframes bounce {
+      0%,100% { transform: rotate(45deg) translateY(0); }
       50% { transform: rotate(45deg) translateY(8px); }
     }
 
-    /* ========== ROSE CONTAINER ========== */
-    .rose-wrapper {
-      position: relative;
-      width: 420px;
-      height: 420px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
+    /* ===== MESSAGE ===== */
+    .message {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 50; pointer-events: none;
+      opacity: 0; transition: opacity 1.5s;
     }
+    .message.show { opacity: 1; pointer-events: auto; }
 
-    /* ========== GLOW ========== */
-    .rose-glow {
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(200, 30, 60, 0.25) 0%, transparent 70%);
-      filter: blur(40px);
-      opacity: 0;
-      transition: opacity 1s ease;
-    }
-
-    /* ========== STEM ========== */
-    .stem {
-      position: absolute;
-      bottom: -60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 6px;
-      height: 180px;
-      background: linear-gradient(to top, #1a5c1a, #2d8a2d, #1a5c1a);
-      border-radius: 3px;
-      opacity: 0;
-      transition: opacity 1s ease 0.3s;
-      z-index: 1;
-    }
-    .stem::before {
-      content: '';
-      position: absolute;
-      top: 60px;
-      left: -18px;
-      width: 30px;
-      height: 18px;
-      background: linear-gradient(135deg, #2d8a2d, #1a5c1a);
-      border-radius: 0 80% 0 80%;
-      transform: rotate(-30deg);
-    }
-    .stem::after {
-      content: '';
-      position: absolute;
-      top: 100px;
-      right: -16px;
-      width: 26px;
-      height: 15px;
-      background: linear-gradient(225deg, #2d8a2d, #1a5c1a);
-      border-radius: 80% 0 80% 0;
-      transform: rotate(30deg);
-    }
-
-    /* ========== SEPAL (green base) ========== */
-    .sepal-ring {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-    }
-    .sepal {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 36px;
-      height: 70px;
-      transform-origin: 50% 0%;
-      background: linear-gradient(to bottom, #1a5c1a, #2d8a2d);
-      border-radius: 0 0 50% 50%;
-      opacity: 0;
-      transition: opacity 0.8s ease;
-    }
-
-    /* ========== PETALS ========== */
-    .petal-ring {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.1s linear;
-    }
-
-    .petal {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform-origin: 50% 100%;
-      border-radius: 50% 50% 45% 45%;
-      transition: filter 0.3s ease;
-    }
-
-    /* --- Ring 1: Outermost petals --- */
-    .ring-1 .petal {
-      width: 90px;
-      height: 130px;
-      margin-left: -45px;
-      margin-top: -130px;
-    }
-
-    /* --- Ring 2 --- */
-    .ring-2 .petal {
-      width: 80px;
-      height: 115px;
-      margin-left: -40px;
-      margin-top: -115px;
-    }
-
-    /* --- Ring 3 --- */
-    .ring-3 .petal {
-      width: 68px;
-      height: 100px;
-      margin-left: -34px;
-      margin-top: -100px;
-    }
-
-    /* --- Ring 4 --- */
-    .ring-4 .petal {
-      width: 55px;
-      height: 85px;
-      margin-left: -27.5px;
-      margin-top: -85px;
-    }
-
-    /* --- Ring 5: Innermost --- */
-    .ring-5 .petal {
-      width: 42px;
-      height: 65px;
-      margin-left: -21px;
-      margin-top: -65px;
-    }
-
-    /* Petal gradients by ring */
-    .ring-1 .petal {
-      background: linear-gradient(to top,
-        #8b1a2b 0%,
-        #c0283a 25%,
-        #d63050 50%,
-        #b22040 75%,
-        #8b1a2b 100%
-      );
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.3), inset 0 -10px 20px rgba(0,0,0,0.2);
-    }
-    .ring-2 .petal {
-      background: linear-gradient(to top,
-        #9b1e30 0%,
-        #d03048 25%,
-        #e84060 50%,
-        #c52848 75%,
-        #9b1e30 100%
-      );
-      box-shadow: inset 0 0 18px rgba(0,0,0,0.25), inset 0 -8px 18px rgba(0,0,0,0.2);
-    }
-    .ring-3 .petal {
-      background: linear-gradient(to top,
-        #a82238 0%,
-        #dc3852 25%,
-        #f04868 50%,
-        #d03050 75%,
-        #a82238 100%
-      );
-      box-shadow: inset 0 0 15px rgba(0,0,0,0.2), inset 0 -6px 15px rgba(0,0,0,0.18);
-    }
-    .ring-4 .petal {
-      background: linear-gradient(to top,
-        #b52840 0%,
-        #e8405c 25%,
-        #f85878 50%,
-        #dc3858 75%,
-        #b52840 100%
-      );
-      box-shadow: inset 0 0 12px rgba(0,0,0,0.18), inset 0 -4px 12px rgba(0,0,0,0.15);
-    }
-    .ring-5 .petal {
-      background: linear-gradient(to top,
-        #c03048 0%,
-        #f04868 25%,
-        #ff6888 50%,
-        #e84868 75%,
-        #c03048 100%
-      );
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.15), inset 0 -3px 10px rgba(0,0,0,0.12);
-    }
-
-    /* Petal vein effect */
-    .petal::after {
-      content: '';
-      position: absolute;
-      top: 15%;
-      left: 50%;
-      width: 1px;
-      height: 60%;
-      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.08), transparent);
-      transform: translateX(-50%);
-    }
-    .petal::before {
-      content: '';
-      position: absolute;
-      top: 10%;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: inherit;
-      background: linear-gradient(
-        105deg,
-        transparent 40%,
-        rgba(255,255,255,0.08) 45%,
-        transparent 50%
-      );
-    }
-
-    /* ========== DEW DROPS ========== */
-    .dew {
-      position: absolute;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%,
-        rgba(255,255,255,0.9),
-        rgba(255,255,255,0.3) 50%,
-        transparent 70%
-      );
-      box-shadow: 0 0 4px rgba(255,255,255,0.3);
-      opacity: 0;
-      transition: opacity 1.5s ease;
-    }
-
-    /* ========== CENTER BLOOM ========== */
-    .rose-center {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 40% 40%,
-        #ff6080,
-        #d03050 40%,
-        #a02040 70%,
-        #801830
-      );
-      z-index: 20;
-      opacity: 0;
-      transform: scale(0.5);
-      transition: opacity 1s ease, transform 1s ease;
-      box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 0 20px rgba(200,30,60,0.3);
-    }
-
-    /* ========== MESSAGE ========== */
-    .message-container {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 1.5s ease;
-    }
-    .message-container.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .message-heart {
-      position: relative;
-      width: 200px;
-      height: 200px;
+    .message-img {
+      width: 320px; height: 320px;
+      border-radius: 50%; object-fit: cover; object-position: center 25%;
+      border: 4px solid rgba(255,100,130,0.5);
+      box-shadow: 0 0 40px rgba(200,30,60,0.4), 0 0 80px rgba(200,30,60,0.15);
       margin-bottom: 30px;
-      opacity: 0;
-      transform: scale(0.5);
-      transition: opacity 1.2s ease 0.3s, transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
+      opacity: 0; transform: scale(0.5);
+      transition: opacity 1s 0.3s, transform 1s cubic-bezier(0.34,1.56,0.64,1) 0.3s;
     }
-    .message-container.visible .message-heart {
-      opacity: 1;
-      transform: scale(1);
-    }
+    .message.show .message-img { opacity: 1; transform: scale(1); }
 
-    .message-heart img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(200, 30, 60, 0.4), 0 0 80px rgba(200, 30, 60, 0.15);
-    }
-
-    /* Heart-shaped clip for image */
-    .heart-frame {
-      width: 200px;
-      height: 200px;
-      clip-path: path('M100 180 C55 140, 0 100, 0 60 C0 25, 30 0, 60 0 C75 0, 90 10, 100 30 C110 10, 125 0, 140 0 C170 0, 200 25, 200 60 C200 100, 145 140, 100 180Z');
-      overflow: hidden;
-      background: linear-gradient(135deg, #ff4466, #cc1144);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .heart-frame .heart-inner {
-      width: 170px;
-      height: 170px;
-      clip-path: path('M85 155 C47 120, 0 85, 0 51 C0 21, 25 0, 51 0 C64 0, 77 9, 85 26 C93 9, 106 0, 119 0 C145 0, 170 21, 170 51 C170 85, 123 120, 85 155Z');
-      background: linear-gradient(135deg, #ff6b88, #ff2255, #cc1144);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: heartPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes heartPulse {
-      0%, 100% { transform: scale(1); }
-      15% { transform: scale(1.08); }
-      30% { transform: scale(1); }
-      45% { transform: scale(1.05); }
-      60% { transform: scale(1); }
-    }
-
-    .heart-emoji {
-      font-size: 60px;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
-    }
-
-    .message-text {
-      text-align: center;
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 1.5s ease 0.8s, transform 1.5s ease 0.8s;
-    }
-    .message-container.visible .message-text {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .message-text h1 {
+    .message h1 {
       font-family: 'Great Vibes', cursive;
       font-size: clamp(48px, 8vw, 96px);
-      color: transparent;
       background: linear-gradient(135deg, #ff6b88, #ff2255, #ff8fa8, #ff2255);
       background-size: 300% 300%;
-      -webkit-background-clip: text;
-      background-clip: text;
+      -webkit-background-clip: text; background-clip: text;
+      color: transparent;
       animation: shimmer 4s ease infinite;
-      text-shadow: none;
-      filter: drop-shadow(0 2px 10px rgba(255, 50, 80, 0.4));
-      line-height: 1.3;
+      filter: drop-shadow(0 2px 10px rgba(255,50,80,0.4));
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 1.2s 0.7s, transform 1.2s 0.7s;
     }
+    .message.show h1 { opacity: 1; transform: translateY(0); }
 
     @keyframes shimmer {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    .message-text p {
-      font-family: 'Playfair Display', serif;
+    .message p {
       font-style: italic;
-      color: rgba(255, 180, 190, 0.8);
+      color: rgba(255,180,190,0.8);
       font-size: clamp(14px, 2vw, 20px);
-      margin-top: 15px;
-      letter-spacing: 3px;
-      opacity: 0;
-      transition: opacity 1.5s ease 1.5s;
+      margin-top: 15px; letter-spacing: 3px;
+      opacity: 0; transition: opacity 1.5s 1.2s;
     }
-    .message-container.visible .message-text p {
-      opacity: 1;
-    }
+    .message.show p { opacity: 1; }
 
-    /* ========== FLOATING PARTICLES ========== */
-    .particles {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 5;
-    }
+    /* ===== PARTICLES ===== */
     .particle {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0;
+      position: fixed; border-radius: 50%;
+      pointer-events: none; z-index: 5;
       animation: floatUp linear infinite;
     }
     @keyframes floatUp {
-      0% {
-        transform: translateY(100vh) rotate(0deg) scale(0);
-        opacity: 0;
-      }
-      10% {
-        opacity: 0.8;
-        transform: translateY(90vh) rotate(36deg) scale(1);
-      }
-      90% {
-        opacity: 0.3;
-      }
-      100% {
-        transform: translateY(-10vh) rotate(360deg) scale(0.5);
-        opacity: 0;
-      }
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 0.5; transform: translateY(90vh) scale(1); }
+      90%  { opacity: 0.15; }
+      100% { transform: translateY(-10vh) scale(0.3); opacity: 0; }
     }
 
-    /* ========== SPARKLES ========== */
+    /* ===== SPARKLES ===== */
     .sparkle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: #fff;
-      border-radius: 50%;
-      opacity: 0;
-      box-shadow: 0 0 6px 2px rgba(255, 200, 210, 0.8);
-      animation: sparkle 3s ease-in-out infinite;
+      position: fixed;
+      width: 4px; height: 4px;
+      background: #fff; border-radius: 50%;
+      pointer-events: none; z-index: 15;
+      box-shadow: 0 0 6px 2px rgba(255,200,210,0.8);
+      animation: twinkle ease-in-out infinite;
+      display: none;
     }
-    @keyframes sparkle {
+    @keyframes twinkle {
       0%, 100% { opacity: 0; transform: scale(0); }
       50% { opacity: 1; transform: scale(1); }
     }
 
-    /* ========== PETAL FALL (end) ========== */
-    .falling-petal {
-      position: fixed;
-      pointer-events: none;
-      z-index: 45;
-      opacity: 0;
-    }
-    .falling-petal svg {
-      width: 30px;
-      height: 30px;
+    /* ===== FALLING PETALS ===== */
+    .fall-petal {
+      position: fixed; pointer-events: none;
+      z-index: 45; opacity: 0;
     }
 
-    /* ========== RESPONSIVE ========== */
+    /* ===== BLOOM CAPTION ===== */
+    .bloom-caption {
+      position: fixed;
+      bottom: 60px; left: 0; width: 100%;
+      text-align: center;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+    .bloom-caption span {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(22px, 4vw, 36px);
+      color: rgba(255, 170, 185, 0.85);
+      filter: drop-shadow(0 0 12px rgba(200, 40, 70, 0.35));
+      letter-spacing: 1px;
+    }
+
     @media (max-width: 600px) {
-      .rose-wrapper {
-        width: 300px;
-        height: 300px;
-        transform: scale(0.75);
-      }
+      #roseSvg { width: 90vw; }
     }
   </style>
 </head>
 <body>
 
-  <div class="scroll-container">
-    <div class="scene">
-      <div class="bg" id="bg"></div>
-      <div class="vignette"></div>
+  <div class="scroll-spacer"></div>
 
-      <!-- Particles -->
-      <div class="particles" id="particles"></div>
+  <div class="scene">
+    <div class="bg" id="bg"></div>
+    <div class="vignette"></div>
 
-      <!-- Rose -->
-      <div class="rose-wrapper" id="rose">
-        <!-- Glow -->
-        <div class="rose-glow" id="glow"></div>
+    <svg id="roseSvg" viewBox="-170 -170 340 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="gc" cx="40%" cy="40%">
+          <stop offset="0%" stop-color="#b83848"/>
+          <stop offset="100%" stop-color="#6b1020"/>
+        </radialGradient>
+        <radialGradient id="g1" cx="45%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="#cc4860"/>
+          <stop offset="100%" stop-color="#8b1a2b"/>
+        </radialGradient>
+        <radialGradient id="g2" cx="45%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="#dd5870"/>
+          <stop offset="100%" stop-color="#a82238"/>
+        </radialGradient>
+        <radialGradient id="g3" cx="45%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="#ee6878"/>
+          <stop offset="100%" stop-color="#c0283a"/>
+        </radialGradient>
+        <radialGradient id="g4" cx="45%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="#f88090"/>
+          <stop offset="100%" stop-color="#d63050"/>
+        </radialGradient>
+        <radialGradient id="g5" cx="45%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="#ffa0b0"/>
+          <stop offset="100%" stop-color="#e84868"/>
+        </radialGradient>
+        <linearGradient id="stemGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2d8a2d"/>
+          <stop offset="100%" stop-color="#1a5c1a"/>
+        </linearGradient>
+        <radialGradient id="leafGrad" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#3a9e3a"/>
+          <stop offset="100%" stop-color="#1a5c1a"/>
+        </radialGradient>
+        <!-- Glow filter -->
+        <filter id="roseGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+    </svg>
 
-        <!-- Stem -->
-        <div class="stem" id="stem"></div>
-
-        <!-- Sepals -->
-        <div class="sepal-ring" id="sepalRing"></div>
-
-        <!-- Petal Rings (5 rings, outer to inner) -->
-        <div class="petal-ring ring-1" id="ring1"></div>
-        <div class="petal-ring ring-2" id="ring2"></div>
-        <div class="petal-ring ring-3" id="ring3"></div>
-        <div class="petal-ring ring-4" id="ring4"></div>
-        <div class="petal-ring ring-5" id="ring5"></div>
-
-        <!-- Center -->
-        <div class="rose-center" id="roseCenter"></div>
-
-        <!-- Dew drops -->
-        <div class="dew" id="dew1" style="width:6px;height:8px;top:38%;left:35%;"></div>
-        <div class="dew" id="dew2" style="width:5px;height:6px;top:42%;left:60%;"></div>
-        <div class="dew" id="dew3" style="width:4px;height:5px;top:30%;left:52%;"></div>
-      </div>
-
-      <!-- Message -->
-      <div class="message-container" id="message">
-        <div class="message-heart">
-          <div class="heart-frame">
-            <div class="heart-inner">
-              <span class="heart-emoji">🌹</span>
-            </div>
-          </div>
-        </div>
-        <div class="message-text">
-          <h1>Happy Rose Day</h1>
-          <p>with love, forever & always</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scroll Hint -->
-    <div class="scroll-hint" id="scrollHint">
-      scroll gently to bloom
-      <span class="arrow"></span>
+    <div class="message" id="msg">
+      <img class="message-img" src="picture.png" alt="Happy Rose Day"/>
+      <h1>Happy Rose Day, Rashika!</h1>
+      <p>with love, forever &amp; always ♥</p>
     </div>
   </div>
 
+  <div class="bloom-caption" id="bloomCaption">
+    <span>Like this rose, my love for you grows — petal by petal, endlessly…</span>
+  </div>
+
+  <div class="scroll-hint" id="hint">
+    scroll gently to bloom
+    <span class="arrow"></span>
+  </div>
+
   <script>
-    // ========== CONFIGURATION ==========
-    const RING_CONFIG = [
-      { id: 'ring1', petals: 8, startAngle: 0, size: 1,   openStart: 0.05, openEnd: 0.30 },
-      { id: 'ring2', petals: 7, startAngle: 12, size: 0.9, openStart: 0.12, openEnd: 0.40 },
-      { id: 'ring3', petals: 6, startAngle: 5,  size: 0.8, openStart: 0.20, openEnd: 0.50 },
-      { id: 'ring4', petals: 6, startAngle: 18, size: 0.7, openStart: 0.30, openEnd: 0.60 },
-      { id: 'ring5', petals: 5, startAngle: 8,  size: 0.6, openStart: 0.40, openEnd: 0.70 },
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('roseSvg');
+    const msg = document.getElementById('msg');
+    const hint = document.getElementById('hint');
+    const bg = document.getElementById('bg');
+    const bloomCaption = document.getElementById('bloomCaption');
+
+    // ===== PETAL PATH: narrow base, wide rounded tip =====
+    function petalD(w, h) {
+      return [
+        `M0,0`,
+        `C${-w},${-h*0.35} ${-w},${-h*0.85} ${-w*0.5},${-h}`,
+        `Q0,${-h*1.1} ${w*0.5},${-h}`,
+        `C${w},${-h*0.85} ${w},${-h*0.35} 0,0Z`
+      ].join(' ');
+    }
+
+    // Sepal path (green, pointing downward)
+    function sepalD(w, h) {
+      return `M0,0 C${-w},${h*0.4} ${-w*0.3},${h*0.9} 0,${h} C${w*0.3},${h*0.9} ${w},${h*0.4} 0,0Z`;
+    }
+
+    // ===== RING CONFIGURATION =====
+    // Drawing order: outermost first (behind) → center last (in front)
+    const rings = [
+      { n:12, w:32, h:62, off:68, ao:16, grad:'g5', stroke:'#c83850', sw:0.7, sr:[0.52, 0.68] },
+      { n:9,  w:28, h:54, off:50, ao:5,  grad:'g4', stroke:'#b82840', sw:0.8, sr:[0.42, 0.58] },
+      { n:7,  w:24, h:46, off:34, ao:12, grad:'g3', stroke:'#a02030', sw:0.8, sr:[0.32, 0.48] },
+      { n:5,  w:20, h:38, off:20, ao:0,  grad:'g2', stroke:'#881a2e', sw:1.0, sr:[0.22, 0.37] },
+      { n:4,  w:16, h:30, off:8,  ao:45, grad:'g1', stroke:'#701525', sw:1.0, sr:[0.12, 0.26] },
+      { id:'center', r:16, grad:'gc', stroke:'#5a1020', sw:1.5, sr:[0.06, 0.16] },
     ];
 
-    const SEPAL_COUNT = 5;
+    // ===== BUILD SVG ELEMENTS =====
+    const animGroups = []; // { el, sr }
 
-    // ========== CREATE PETALS ==========
-    RING_CONFIG.forEach(ring => {
-      const container = document.getElementById(ring.id);
-      const angleStep = 360 / ring.petals;
+    // --- Stem + Leaves (drawn first = behind everything) ---
+    const stemG = document.createElementNS(NS, 'g');
+    stemG.style.opacity = '0';
 
-      for (let i = 0; i < ring.petals; i++) {
-        const petal = document.createElement('div');
-        petal.classList.add('petal');
-        const angle = ring.startAngle + angleStep * i;
-        // Start fully closed: rotateX(85deg) = petals folded up
-        petal.style.transform = `rotate(${angle}deg) rotateX(85deg)`;
-        petal.dataset.angle = angle;
-        petal.dataset.openStart = ring.openStart;
-        petal.dataset.openEnd = ring.openEnd;
-        container.appendChild(petal);
+    const stemPath = document.createElementNS(NS, 'path');
+    stemPath.setAttribute('d', 'M0,20 Q5,100 -2,180 Q-4,210 0,230');
+    stemPath.setAttribute('fill', 'none');
+    stemPath.setAttribute('stroke', 'url(#stemGrad)');
+    stemPath.setAttribute('stroke-width', '5');
+    stemPath.setAttribute('stroke-linecap', 'round');
+    stemG.appendChild(stemPath);
+
+    // Thorns
+    const thorn1 = document.createElementNS(NS, 'path');
+    thorn1.setAttribute('d', 'M1,85 L-9,75 L-1,80Z');
+    thorn1.setAttribute('fill', '#2d7a2d');
+    stemG.appendChild(thorn1);
+
+    const thorn2 = document.createElementNS(NS, 'path');
+    thorn2.setAttribute('d', 'M-1,145 L9,135 L1,140Z');
+    thorn2.setAttribute('fill', '#2d7a2d');
+    stemG.appendChild(thorn2);
+
+    // Left leaf
+    const leaf1 = document.createElementNS(NS, 'path');
+    leaf1.setAttribute('d', 'M-1,92 C-20,80 -50,65 -42,48 C-35,58 -15,75 -1,92Z');
+    leaf1.setAttribute('fill', 'url(#leafGrad)');
+    leaf1.setAttribute('stroke', '#1a5c1a');
+    leaf1.setAttribute('stroke-width', '0.8');
+    stemG.appendChild(leaf1);
+
+    // Leaf vein
+    const vein1 = document.createElementNS(NS, 'path');
+    vein1.setAttribute('d', 'M-1,92 Q-25,72 -42,48');
+    vein1.setAttribute('fill', 'none');
+    vein1.setAttribute('stroke', '#1a5c1a');
+    vein1.setAttribute('stroke-width', '0.6');
+    stemG.appendChild(vein1);
+
+    // Right leaf
+    const leaf2 = document.createElementNS(NS, 'path');
+    leaf2.setAttribute('d', 'M1,152 C20,140 50,125 42,108 C35,118 15,135 1,152Z');
+    leaf2.setAttribute('fill', 'url(#leafGrad)');
+    leaf2.setAttribute('stroke', '#1a5c1a');
+    leaf2.setAttribute('stroke-width', '0.8');
+    stemG.appendChild(leaf2);
+
+    const vein2 = document.createElementNS(NS, 'path');
+    vein2.setAttribute('d', 'M1,152 Q25,132 42,108');
+    vein2.setAttribute('fill', 'none');
+    vein2.setAttribute('stroke', '#1a5c1a');
+    vein2.setAttribute('stroke-width', '0.6');
+    stemG.appendChild(vein2);
+
+    svg.appendChild(stemG);
+
+    // --- Sepals (behind outermost petals) ---
+    const sepalG = document.createElementNS(NS, 'g');
+    sepalG.style.opacity = '0';
+    for (let i = 0; i < 5; i++) {
+      const angle = 72 * i + 36;
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', sepalD(9, 30));
+      p.setAttribute('fill', 'url(#leafGrad)');
+      p.setAttribute('stroke', '#1a5c1a');
+      p.setAttribute('stroke-width', '0.8');
+      p.setAttribute('transform', `rotate(${angle}) translate(0, 14)`);
+      sepalG.appendChild(p);
+    }
+    svg.appendChild(sepalG);
+
+    // --- Petal Rings ---
+    rings.forEach((ring) => {
+      const g = document.createElementNS(NS, 'g');
+      g.style.opacity = '0';
+
+      if (ring.id === 'center') {
+        // Center bud
+        const c = document.createElementNS(NS, 'circle');
+        c.setAttribute('cx', 0);
+        c.setAttribute('cy', 0);
+        c.setAttribute('r', ring.r);
+        c.setAttribute('fill', `url(#${ring.grad})`);
+        c.setAttribute('stroke', ring.stroke);
+        c.setAttribute('stroke-width', ring.sw);
+        g.appendChild(c);
+
+        // Inner spiral hint
+        const spiral = document.createElementNS(NS, 'path');
+        spiral.setAttribute('d', 'M-4,-6 Q0,-12 5,-5 Q8,2 -2,5 Q-8,2 -4,-6');
+        spiral.setAttribute('fill', 'none');
+        spiral.setAttribute('stroke', 'rgba(0,0,0,0.15)');
+        spiral.setAttribute('stroke-width', '1');
+        g.appendChild(spiral);
+      } else {
+        const step = 360 / ring.n;
+        for (let j = 0; j < ring.n; j++) {
+          const angle = ring.ao + step * j;
+          const p = document.createElementNS(NS, 'path');
+          p.setAttribute('d', petalD(ring.w, ring.h));
+          p.setAttribute('fill', `url(#${ring.grad})`);
+          p.setAttribute('stroke', ring.stroke);
+          p.setAttribute('stroke-width', ring.sw);
+          p.setAttribute('opacity', '0.92');
+          p.setAttribute('transform', `rotate(${angle}) translate(0,${-ring.off})`);
+          g.appendChild(p);
+        }
       }
+
+      svg.appendChild(g);
+      animGroups.push({ el: g, sr: ring.sr });
     });
 
-    // ========== CREATE SEPALS ==========
-    const sepalRing = document.getElementById('sepalRing');
-    for (let i = 0; i < SEPAL_COUNT; i++) {
-      const sepal = document.createElement('div');
-      sepal.classList.add('sepal');
-      const angle = (360 / SEPAL_COUNT) * i;
-      sepal.style.transform = `rotate(${angle}deg) translateY(0px)`;
-      sepal.dataset.angle = angle;
-      sepalRing.appendChild(sepal);
-    }
-
-    // ========== CREATE PARTICLES ==========
-    const particlesContainer = document.getElementById('particles');
-    for (let i = 0; i < 25; i++) {
+    // ===== FLOATING PARTICLES =====
+    for (let i = 0; i < 20; i++) {
       const p = document.createElement('div');
       p.classList.add('particle');
-      const size = Math.random() * 6 + 2;
-      const hue = Math.random() * 30 + 340; // reds/pinks
-      p.style.width = size + 'px';
-      p.style.height = size + 'px';
-      p.style.left = Math.random() * 100 + 'vw';
-      p.style.background = `hsl(${hue}, 80%, ${50 + Math.random() * 30}%)`;
-      p.style.animationDuration = (8 + Math.random() * 12) + 's';
-      p.style.animationDelay = (Math.random() * 15) + 's';
-      particlesContainer.appendChild(p);
+      const size = 2 + Math.random() * 5;
+      const hue = 340 + Math.random() * 30;
+      p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}vw;` +
+        `background:hsl(${hue},80%,${50+Math.random()*30}%);` +
+        `animation-duration:${8+Math.random()*12}s;animation-delay:${Math.random()*15}s;`;
+      document.body.appendChild(p);
     }
 
-    // ========== CREATE SPARKLES ==========
-    const rose = document.getElementById('rose');
-    for (let i = 0; i < 15; i++) {
+    // ===== SPARKLES =====
+    const sparkles = [];
+    for (let i = 0; i < 12; i++) {
       const s = document.createElement('div');
       s.classList.add('sparkle');
-      s.style.left = (20 + Math.random() * 60) + '%';
-      s.style.top = (10 + Math.random() * 60) + '%';
+      s.style.left = (35 + Math.random() * 30) + 'vw';
+      s.style.top = (20 + Math.random() * 55) + 'vh';
       s.style.animationDelay = (Math.random() * 4) + 's';
       s.style.animationDuration = (2 + Math.random() * 3) + 's';
-      rose.appendChild(s);
+      document.body.appendChild(s);
+      sparkles.push(s);
     }
 
-    // ========== CREATE FALLING PETALS ==========
-    const body = document.body;
-    for (let i = 0; i < 12; i++) {
+    // ===== FALLING PETALS (for end) =====
+    const fallPetals = [];
+    for (let i = 0; i < 15; i++) {
       const fp = document.createElement('div');
-      fp.classList.add('falling-petal');
-      fp.innerHTML = `<svg viewBox="0 0 30 30"><ellipse cx="15" cy="15" rx="12" ry="15"
-        fill="hsl(${345 + Math.random()*20}, ${70+Math.random()*20}%, ${40+Math.random()*25}%)"
-        opacity="0.85"/></svg>`;
-      fp.style.left = (Math.random() * 100) + 'vw';
-      fp.style.top = '-40px';
-      fp.dataset.delay = i * 0.4;
-      fp.dataset.speed = 3 + Math.random() * 4;
-      fp.dataset.sway = 50 + Math.random() * 100;
-      body.appendChild(fp);
+      fp.classList.add('fall-petal');
+      const hue = 345 + Math.random() * 20;
+      const sz = 15 + Math.random() * 20;
+      fp.innerHTML = `<svg width="${sz}" height="${sz}" viewBox="0 0 30 40">` +
+        `<path d="M15,0 C5,10 0,20 5,35 Q15,42 25,35 C30,20 25,10 15,0Z" ` +
+        `fill="hsl(${hue},${70+Math.random()*20}%,${40+Math.random()*25}%)" opacity="0.8"/></svg>`;
+      fp.style.left = Math.random() * 100 + 'vw';
+      fp.dataset.delay = (i * 0.04).toFixed(3);
+      fp.dataset.speed = (3 + Math.random() * 4).toFixed(2);
+      fp.dataset.sway = (40 + Math.random() * 80).toFixed(1);
+      document.body.appendChild(fp);
+      fallPetals.push(fp);
     }
 
-    // ========== SCROLL HANDLER ==========
-    const glow = document.getElementById('glow');
-    const stem = document.getElementById('stem');
-    const roseCenter = document.getElementById('roseCenter');
-    const message = document.getElementById('message');
-    const scrollHint = document.getElementById('scrollHint');
-    const bg = document.getElementById('bg');
-    const dews = [document.getElementById('dew1'), document.getElementById('dew2'), document.getElementById('dew3')];
-    const allPetals = document.querySelectorAll('.petal');
-    const allSepals = document.querySelectorAll('.sepal');
-    const fallingPetals = document.querySelectorAll('.falling-petal');
+    // ===== HELPERS =====
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; }
+    function lerp(a, b, t) { return a + (b - a) * t; }
 
+    // ===== SCROLL ANIMATION =====
+    const glowFilter = svg.querySelector('#roseGlow feGaussianBlur');
     let ticking = false;
 
-    function easeInOutCubic(t) {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    }
-
-    function clamp(val, min, max) {
-      return Math.max(min, Math.min(max, val));
-    }
-
-    function lerp(start, end, t) {
-      return start + (end - start) * t;
-    }
-
     function onScroll() {
-      if (!ticking) {
-        requestAnimationFrame(update);
-        ticking = true;
-      }
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
     }
 
     function update() {
       ticking = false;
       const scrollTop = window.pageYOffset;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = clamp(scrollTop / maxScroll, 0, 1);
+      const p = clamp(scrollTop / maxScroll, 0, 1);
 
-      // -- Scroll hint fade out
-      scrollHint.style.opacity = progress < 0.05 ? 1 : Math.max(0, 1 - (progress - 0.05) / 0.05);
+      // --- Scroll hint fade ---
+      hint.style.opacity = p < 0.04 ? 1 : Math.max(0, 1 - (p - 0.04) / 0.04);
 
-      // -- Stem appear
-      stem.style.opacity = progress > 0.02 ? 1 : 0;
-
-      // -- Sepals
-      allSepals.forEach(s => {
-        s.style.opacity = progress > 0.03 ? 1 : 0;
+      // --- Petal ring animation (opacity + scale from center) ---
+      animGroups.forEach(({ el, sr }) => {
+        const t = ease(clamp((p - sr[0]) / (sr[1] - sr[0]), 0, 1));
+        el.style.opacity = t;
+        // Scale petals from center using SVG transform
+        const sc = lerp(0.3, 1, t);
+        el.setAttribute('transform', `scale(${sc})`);
       });
 
-      // -- Glow intensify
-      const glowProgress = clamp((progress - 0.1) / 0.6, 0, 1);
-      glow.style.opacity = glowProgress * 0.8;
-      glow.style.transform = `scale(${1 + glowProgress * 1.5})`;
+      // --- Sepals ---
+      const sepalT = ease(clamp((p - 0.55) / 0.15, 0, 1));
+      sepalG.style.opacity = sepalT;
+      sepalG.setAttribute('transform', `scale(${lerp(0.5, 1, sepalT)})`);
 
-      // -- Petals opening
-      allPetals.forEach(petal => {
-        const openStart = parseFloat(petal.dataset.openStart);
-        const openEnd = parseFloat(petal.dataset.openEnd);
-        const angle = parseFloat(petal.dataset.angle);
-        const petalProgress = clamp((progress - openStart) / (openEnd - openStart), 0, 1);
-        const eased = easeInOutCubic(petalProgress);
+      // --- Stem + leaves ---
+      const stemT = ease(clamp((p - 0.50) / 0.20, 0, 1));
+      stemG.style.opacity = stemT;
 
-        // From 85deg (closed) to -25deg (fully open, slightly curled back)
-        const rotateX = lerp(85, -25, eased);
-        // Slight splay outward
-        const translateY = lerp(0, -8 * eased, eased);
+      // --- SVG glow effect ---
+      const glowP = clamp((p - 0.3) / 0.4, 0, 1);
+      const blurVal = glowP * 6;
+      glowFilter.setAttribute('stdDeviation', blurVal.toFixed(1));
+      svg.style.filter = `drop-shadow(0 0 ${Math.round(glowP * 35)}px rgba(200,40,70,${(glowP*0.35).toFixed(2)}))`;
 
-        petal.style.transform = `rotate(${angle}deg) translateY(${translateY}px) rotateX(${rotateX}deg)`;
+      // --- Background warmth ---
+      const w = clamp(p / 0.7, 0, 1);
+      const br = Math.round(lerp(10, 35, w));
+      bg.style.background = `radial-gradient(ellipse at 50% 50%, ` +
+        `rgb(${br*2},${Math.round(br*0.2)},${Math.round(br*0.4)}), rgb(${br},0,0))`;
 
-        // Subtle brightness variation
-        const brightness = lerp(0.7, 1.1, eased);
-        petal.style.filter = `brightness(${brightness})`;
+      // --- Bloom caption (visible during petal growth, fades before message) ---
+      let captionOpacity = 0;
+      if (p >= 0.10 && p < 0.25) {
+        captionOpacity = clamp((p - 0.10) / 0.10, 0, 1); // fade in
+      } else if (p >= 0.25 && p < 0.70) {
+        captionOpacity = 1; // fully visible
+      } else if (p >= 0.70 && p < 0.80) {
+        captionOpacity = clamp(1 - (p - 0.70) / 0.10, 0, 1); // fade out
+      }
+      bloomCaption.style.opacity = captionOpacity;
+
+      // --- Sparkles ---
+      sparkles.forEach(s => {
+        s.style.display = (p > 0.45 && p < 0.82) ? 'block' : 'none';
       });
 
-      // -- Center bloom
-      const centerProgress = clamp((progress - 0.45) / 0.25, 0, 1);
-      const centerEased = easeInOutCubic(centerProgress);
-      roseCenter.style.opacity = centerEased;
-      roseCenter.style.transform = `scale(${0.5 + centerEased * 0.5})`;
-
-      // -- Dew drops
-      dews.forEach((d, i) => {
-        const dewStart = 0.3 + i * 0.08;
-        d.style.opacity = clamp((progress - dewStart) / 0.15, 0, 0.9);
-      });
-
-      // -- Background warmth
-      const warmth = clamp(progress / 0.7, 0, 1);
-      const bgR = Math.round(lerp(10, 30, warmth));
-      const bgG = Math.round(lerp(0, 5, warmth));
-      const bgB = Math.round(lerp(0, 10, warmth));
-      bg.style.background = `radial-gradient(ellipse at 50% 60%, rgb(${bgR*2},${bgG},${bgB}) 0%, rgb(${bgR},0,0) 70%)`;
-
-      // -- Message reveal
-      const msgProgress = clamp((progress - 0.78) / 0.12, 0, 1);
-      if (msgProgress > 0) {
-        message.classList.add('visible');
-        // Fade out rose
-        const roseFade = clamp((progress - 0.80) / 0.10, 0, 1);
-        document.getElementById('rose').style.opacity = 1 - roseFade * 0.85;
-        document.getElementById('rose').style.transform = `scale(${1 + roseFade * 0.3})`;
-        document.getElementById('rose').style.filter = `blur(${roseFade * 8}px)`;
+      // --- Message ---
+      const msgP = clamp((p - 0.80) / 0.12, 0, 1);
+      if (msgP > 0) {
+        msg.classList.add('show');
+        const fade = clamp((p - 0.82) / 0.10, 0, 1);
+        svg.style.opacity = 1 - fade * 0.92;
+        svg.style.transform = `scale(${1 + fade * 0.3})`;
       } else {
-        message.classList.remove('visible');
-        document.getElementById('rose').style.opacity = 1;
-        document.getElementById('rose').style.transform = 'scale(1)';
-        document.getElementById('rose').style.filter = 'blur(0px)';
+        msg.classList.remove('show');
+        svg.style.opacity = 1;
+        svg.style.transform = 'scale(1)';
       }
 
-      // -- Falling petals at the end
-      fallingPetals.forEach(fp => {
-        const fallingStart = 0.82;
-        const fpProgress = clamp((progress - fallingStart) / 0.18, 0, 1);
-        if (fpProgress > 0) {
-          const delay = parseFloat(fp.dataset.delay) * 0.05;
-          const adj = clamp((fpProgress - delay) / (1 - delay), 0, 1);
+      // --- Falling petals ---
+      fallPetals.forEach(fp => {
+        const fStart = 0.85;
+        const fP = clamp((p - fStart) / 0.15, 0, 1);
+        if (fP > 0) {
+          const d = parseFloat(fp.dataset.delay);
+          const adj = clamp((fP - d) / (1 - d), 0, 1);
           const speed = parseFloat(fp.dataset.speed);
           const sway = parseFloat(fp.dataset.sway);
-          fp.style.opacity = adj > 0.05 ? (adj < 0.9 ? 0.8 : lerp(0.8, 0, (adj - 0.9) / 0.1)) : 0;
-          fp.style.top = `${adj * 110}vh`;
-          fp.style.transform = `translateX(${Math.sin(adj * speed) * sway}px) rotate(${adj * 360}deg)`;
+          fp.style.opacity = adj > 0.03
+            ? (adj < 0.9 ? 0.75 : lerp(0.75, 0, (adj - 0.9) / 0.1).toFixed(2))
+            : 0;
+          fp.style.top = (adj * 110) + 'vh';
+          fp.style.transform = `translateX(${(Math.sin(adj * speed) * sway).toFixed(1)}px) rotate(${(adj * 360).toFixed(0)}deg)`;
         } else {
           fp.style.opacity = 0;
         }
       });
-
-      // -- Sparkles visibility
-      const sparkles = document.querySelectorAll('.sparkle');
-      sparkles.forEach(s => {
-        s.style.display = progress > 0.25 && progress < 0.85 ? 'block' : 'none';
-      });
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    update(); // initial state
+    update();
   </script>
 </body>
 </html>
