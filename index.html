@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Rose Day 🌹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital@1&display=swap" rel="stylesheet" />
+  <style>
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      overflow-x: hidden;
+      font-family: 'Playfair Display', serif;
+      background: #0a0000;
+    }
+
+    /* ========== SCROLL SPACER ========== */
+    .scroll-container {
+      height: 600vh;
+      position: relative;
+    }
+
+    /* ========== FIXED SCENE ========== */
+    .scene {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    /* ========== BACKGROUND ========== */
+    .bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, #1a0508 0%, #0a0000 70%);
+      transition: background 0.8s ease;
+    }
+    .bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(180, 20, 50, 0.08) 0%, transparent 70%);
+    }
+
+    /* ========== VIGNETTE ========== */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      box-shadow: inset 0 0 200px rgba(0,0,0,0.8);
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ========== SCROLL HINT ========== */
+    .scroll-hint {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      text-align: center;
+      color: rgba(255, 180, 190, 0.7);
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 14px;
+      letter-spacing: 2px;
+      transition: opacity 0.8s ease;
+    }
+    .scroll-hint .arrow {
+      display: block;
+      margin: 8px auto 0;
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid rgba(255, 180, 190, 0.5);
+      border-bottom: 2px solid rgba(255, 180, 190, 0.5);
+      transform: rotate(45deg);
+      animation: bounceArrow 2s ease infinite;
+    }
+    @keyframes bounceArrow {
+      0%, 100% { transform: rotate(45deg) translateY(0); }
+      50% { transform: rotate(45deg) translateY(8px); }
+    }
+
+    /* ========== ROSE CONTAINER ========== */
+    .rose-wrapper {
+      position: relative;
+      width: 420px;
+      height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    /* ========== GLOW ========== */
+    .rose-glow {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200, 30, 60, 0.25) 0%, transparent 70%);
+      filter: blur(40px);
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    /* ========== STEM ========== */
+    .stem {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 180px;
+      background: linear-gradient(to top, #1a5c1a, #2d8a2d, #1a5c1a);
+      border-radius: 3px;
+      opacity: 0;
+      transition: opacity 1s ease 0.3s;
+      z-index: 1;
+    }
+    .stem::before {
+      content: '';
+      position: absolute;
+      top: 60px;
+      left: -18px;
+      width: 30px;
+      height: 18px;
+      background: linear-gradient(135deg, #2d8a2d, #1a5c1a);
+      border-radius: 0 80% 0 80%;
+      transform: rotate(-30deg);
+    }
+    .stem::after {
+      content: '';
+      position: absolute;
+      top: 100px;
+      right: -16px;
+      width: 26px;
+      height: 15px;
+      background: linear-gradient(225deg, #2d8a2d, #1a5c1a);
+      border-radius: 80% 0 80% 0;
+      transform: rotate(30deg);
+    }
+
+    /* ========== SEPAL (green base) ========== */
+    .sepal-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+    .sepal {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 36px;
+      height: 70px;
+      transform-origin: 50% 0%;
+      background: linear-gradient(to bottom, #1a5c1a, #2d8a2d);
+      border-radius: 0 0 50% 50%;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    /* ========== PETALS ========== */
+    .petal-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.1s linear;
+    }
+
+    .petal {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform-origin: 50% 100%;
+      border-radius: 50% 50% 45% 45%;
+      transition: filter 0.3s ease;
+    }
+
+    /* --- Ring 1: Outermost petals --- */
+    .ring-1 .petal {
+      width: 90px;
+      height: 130px;
+      margin-left: -45px;
+      margin-top: -130px;
+    }
+
+    /* --- Ring 2 --- */
+    .ring-2 .petal {
+      width: 80px;
+      height: 115px;
+      margin-left: -40px;
+      margin-top: -115px;
+    }
+
+    /* --- Ring 3 --- */
+    .ring-3 .petal {
+      width: 68px;
+      height: 100px;
+      margin-left: -34px;
+      margin-top: -100px;
+    }
+
+    /* --- Ring 4 --- */
+    .ring-4 .petal {
+      width: 55px;
+      height: 85px;
+      margin-left: -27.5px;
+      margin-top: -85px;
+    }
+
+    /* --- Ring 5: Innermost --- */
+    .ring-5 .petal {
+      width: 42px;
+      height: 65px;
+      margin-left: -21px;
+      margin-top: -65px;
+    }
+
+    /* Petal gradients by ring */
+    .ring-1 .petal {
+      background: linear-gradient(to top,
+        #8b1a2b 0%,
+        #c0283a 25%,
+        #d63050 50%,
+        #b22040 75%,
+        #8b1a2b 100%
+      );
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.3), inset 0 -10px 20px rgba(0,0,0,0.2);
+    }
+    .ring-2 .petal {
+      background: linear-gradient(to top,
+        #9b1e30 0%,
+        #d03048 25%,
+        #e84060 50%,
+        #c52848 75%,
+        #9b1e30 100%
+      );
+      box-shadow: inset 0 0 18px rgba(0,0,0,0.25), inset 0 -8px 18px rgba(0,0,0,0.2);
+    }
+    .ring-3 .petal {
+      background: linear-gradient(to top,
+        #a82238 0%,
+        #dc3852 25%,
+        #f04868 50%,
+        #d03050 75%,
+        #a82238 100%
+      );
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.2), inset 0 -6px 15px rgba(0,0,0,0.18);
+    }
+    .ring-4 .petal {
+      background: linear-gradient(to top,
+        #b52840 0%,
+        #e8405c 25%,
+        #f85878 50%,
+        #dc3858 75%,
+        #b52840 100%
+      );
+      box-shadow: inset 0 0 12px rgba(0,0,0,0.18), inset 0 -4px 12px rgba(0,0,0,0.15);
+    }
+    .ring-5 .petal {
+      background: linear-gradient(to top,
+        #c03048 0%,
+        #f04868 25%,
+        #ff6888 50%,
+        #e84868 75%,
+        #c03048 100%
+      );
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.15), inset 0 -3px 10px rgba(0,0,0,0.12);
+    }
+
+    /* Petal vein effect */
+    .petal::after {
+      content: '';
+      position: absolute;
+      top: 15%;
+      left: 50%;
+      width: 1px;
+      height: 60%;
+      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.08), transparent);
+      transform: translateX(-50%);
+    }
+    .petal::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: inherit;
+      background: linear-gradient(
+        105deg,
+        transparent 40%,
+        rgba(255,255,255,0.08) 45%,
+        transparent 50%
+      );
+    }
+
+    /* ========== DEW DROPS ========== */
+    .dew {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%,
+        rgba(255,255,255,0.9),
+        rgba(255,255,255,0.3) 50%,
+        transparent 70%
+      );
+      box-shadow: 0 0 4px rgba(255,255,255,0.3);
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    /* ========== CENTER BLOOM ========== */
+    .rose-center {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%,
+        #ff6080,
+        #d03050 40%,
+        #a02040 70%,
+        #801830
+      );
+      z-index: 20;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 1s ease, transform 1s ease;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 0 20px rgba(200,30,60,0.3);
+    }
+
+    /* ========== MESSAGE ========== */
+    .message-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+    .message-container.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .message-heart {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin-bottom: 30px;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 1.2s ease 0.3s, transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
+    }
+    .message-container.visible .message-heart {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .message-heart img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(200, 30, 60, 0.4), 0 0 80px rgba(200, 30, 60, 0.15);
+    }
+
+    /* Heart-shaped clip for image */
+    .heart-frame {
+      width: 200px;
+      height: 200px;
+      clip-path: path('M100 180 C55 140, 0 100, 0 60 C0 25, 30 0, 60 0 C75 0, 90 10, 100 30 C110 10, 125 0, 140 0 C170 0, 200 25, 200 60 C200 100, 145 140, 100 180Z');
+      overflow: hidden;
+      background: linear-gradient(135deg, #ff4466, #cc1144);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .heart-frame .heart-inner {
+      width: 170px;
+      height: 170px;
+      clip-path: path('M85 155 C47 120, 0 85, 0 51 C0 21, 25 0, 51 0 C64 0, 77 9, 85 26 C93 9, 106 0, 119 0 C145 0, 170 21, 170 51 C170 85, 123 120, 85 155Z');
+      background: linear-gradient(135deg, #ff6b88, #ff2255, #cc1144);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: heartPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes heartPulse {
+      0%, 100% { transform: scale(1); }
+      15% { transform: scale(1.08); }
+      30% { transform: scale(1); }
+      45% { transform: scale(1.05); }
+      60% { transform: scale(1); }
+    }
+
+    .heart-emoji {
+      font-size: 60px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+    }
+
+    .message-text {
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1.5s ease 0.8s, transform 1.5s ease 0.8s;
+    }
+    .message-container.visible .message-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .message-text h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(48px, 8vw, 96px);
+      color: transparent;
+      background: linear-gradient(135deg, #ff6b88, #ff2255, #ff8fa8, #ff2255);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: shimmer 4s ease infinite;
+      text-shadow: none;
+      filter: drop-shadow(0 2px 10px rgba(255, 50, 80, 0.4));
+      line-height: 1.3;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .message-text p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: rgba(255, 180, 190, 0.8);
+      font-size: clamp(14px, 2vw, 20px);
+      margin-top: 15px;
+      letter-spacing: 3px;
+      opacity: 0;
+      transition: opacity 1.5s ease 1.5s;
+    }
+    .message-container.visible .message-text p {
+      opacity: 1;
+    }
+
+    /* ========== FLOATING PARTICLES ========== */
+    .particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh) rotate(0deg) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.8;
+        transform: translateY(90vh) rotate(36deg) scale(1);
+      }
+      90% {
+        opacity: 0.3;
+      }
+      100% {
+        transform: translateY(-10vh) rotate(360deg) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    /* ========== SPARKLES ========== */
+    .sparkle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0;
+      box-shadow: 0 0 6px 2px rgba(255, 200, 210, 0.8);
+      animation: sparkle 3s ease-in-out infinite;
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ========== PETAL FALL (end) ========== */
+    .falling-petal {
+      position: fixed;
+      pointer-events: none;
+      z-index: 45;
+      opacity: 0;
+    }
+    .falling-petal svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 600px) {
+      .rose-wrapper {
+        width: 300px;
+        height: 300px;
+        transform: scale(0.75);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-container">
+    <div class="scene">
+      <div class="bg" id="bg"></div>
+      <div class="vignette"></div>
+
+      <!-- Particles -->
+      <div class="particles" id="particles"></div>
+
+      <!-- Rose -->
+      <div class="rose-wrapper" id="rose">
+        <!-- Glow -->
+        <div class="rose-glow" id="glow"></div>
+
+        <!-- Stem -->
+        <div class="stem" id="stem"></div>
+
+        <!-- Sepals -->
+        <div class="sepal-ring" id="sepalRing"></div>
+
+        <!-- Petal Rings (5 rings, outer to inner) -->
+        <div class="petal-ring ring-1" id="ring1"></div>
+        <div class="petal-ring ring-2" id="ring2"></div>
+        <div class="petal-ring ring-3" id="ring3"></div>
+        <div class="petal-ring ring-4" id="ring4"></div>
+        <div class="petal-ring ring-5" id="ring5"></div>
+
+        <!-- Center -->
+        <div class="rose-center" id="roseCenter"></div>
+
+        <!-- Dew drops -->
+        <div class="dew" id="dew1" style="width:6px;height:8px;top:38%;left:35%;"></div>
+        <div class="dew" id="dew2" style="width:5px;height:6px;top:42%;left:60%;"></div>
+        <div class="dew" id="dew3" style="width:4px;height:5px;top:30%;left:52%;"></div>
+      </div>
+
+      <!-- Message -->
+      <div class="message-container" id="message">
+        <div class="message-heart">
+          <div class="heart-frame">
+            <div class="heart-inner">
+              <span class="heart-emoji">🌹</span>
+            </div>
+          </div>
+        </div>
+        <div class="message-text">
+          <h1>Happy Rose Day</h1>
+          <p>with love, forever & always</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll Hint -->
+    <div class="scroll-hint" id="scrollHint">
+      scroll gently to bloom
+      <span class="arrow"></span>
+    </div>
+  </div>
+
+  <script>
+    // ========== CONFIGURATION ==========
+    const RING_CONFIG = [
+      { id: 'ring1', petals: 8, startAngle: 0, size: 1,   openStart: 0.05, openEnd: 0.30 },
+      { id: 'ring2', petals: 7, startAngle: 12, size: 0.9, openStart: 0.12, openEnd: 0.40 },
+      { id: 'ring3', petals: 6, startAngle: 5,  size: 0.8, openStart: 0.20, openEnd: 0.50 },
+      { id: 'ring4', petals: 6, startAngle: 18, size: 0.7, openStart: 0.30, openEnd: 0.60 },
+      { id: 'ring5', petals: 5, startAngle: 8,  size: 0.6, openStart: 0.40, openEnd: 0.70 },
+    ];
+
+    const SEPAL_COUNT = 5;
+
+    // ========== CREATE PETALS ==========
+    RING_CONFIG.forEach(ring => {
+      const container = document.getElementById(ring.id);
+      const angleStep = 360 / ring.petals;
+
+      for (let i = 0; i < ring.petals; i++) {
+        const petal = document.createElement('div');
+        petal.classList.add('petal');
+        const angle = ring.startAngle + angleStep * i;
+        // Start fully closed: rotateX(85deg) = petals folded up
+        petal.style.transform = `rotate(${angle}deg) rotateX(85deg)`;
+        petal.dataset.angle = angle;
+        petal.dataset.openStart = ring.openStart;
+        petal.dataset.openEnd = ring.openEnd;
+        container.appendChild(petal);
+      }
+    });
+
+    // ========== CREATE SEPALS ==========
+    const sepalRing = document.getElementById('sepalRing');
+    for (let i = 0; i < SEPAL_COUNT; i++) {
+      const sepal = document.createElement('div');
+      sepal.classList.add('sepal');
+      const angle = (360 / SEPAL_COUNT) * i;
+      sepal.style.transform = `rotate(${angle}deg) translateY(0px)`;
+      sepal.dataset.angle = angle;
+      sepalRing.appendChild(sepal);
+    }
+
+    // ========== CREATE PARTICLES ==========
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 25; i++) {
+      const p = document.createElement('div');
+      p.classList.add('particle');
+      const size = Math.random() * 6 + 2;
+      const hue = Math.random() * 30 + 340; // reds/pinks
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.background = `hsl(${hue}, 80%, ${50 + Math.random() * 30}%)`;
+      p.style.animationDuration = (8 + Math.random() * 12) + 's';
+      p.style.animationDelay = (Math.random() * 15) + 's';
+      particlesContainer.appendChild(p);
+    }
+
+    // ========== CREATE SPARKLES ==========
+    const rose = document.getElementById('rose');
+    for (let i = 0; i < 15; i++) {
+      const s = document.createElement('div');
+      s.classList.add('sparkle');
+      s.style.left = (20 + Math.random() * 60) + '%';
+      s.style.top = (10 + Math.random() * 60) + '%';
+      s.style.animationDelay = (Math.random() * 4) + 's';
+      s.style.animationDuration = (2 + Math.random() * 3) + 's';
+      rose.appendChild(s);
+    }
+
+    // ========== CREATE FALLING PETALS ==========
+    const body = document.body;
+    for (let i = 0; i < 12; i++) {
+      const fp = document.createElement('div');
+      fp.classList.add('falling-petal');
+      fp.innerHTML = `<svg viewBox="0 0 30 30"><ellipse cx="15" cy="15" rx="12" ry="15"
+        fill="hsl(${345 + Math.random()*20}, ${70+Math.random()*20}%, ${40+Math.random()*25}%)"
+        opacity="0.85"/></svg>`;
+      fp.style.left = (Math.random() * 100) + 'vw';
+      fp.style.top = '-40px';
+      fp.dataset.delay = i * 0.4;
+      fp.dataset.speed = 3 + Math.random() * 4;
+      fp.dataset.sway = 50 + Math.random() * 100;
+      body.appendChild(fp);
+    }
+
+    // ========== SCROLL HANDLER ==========
+    const glow = document.getElementById('glow');
+    const stem = document.getElementById('stem');
+    const roseCenter = document.getElementById('roseCenter');
+    const message = document.getElementById('message');
+    const scrollHint = document.getElementById('scrollHint');
+    const bg = document.getElementById('bg');
+    const dews = [document.getElementById('dew1'), document.getElementById('dew2'), document.getElementById('dew3')];
+    const allPetals = document.querySelectorAll('.petal');
+    const allSepals = document.querySelectorAll('.sepal');
+    const fallingPetals = document.querySelectorAll('.falling-petal');
+
+    let ticking = false;
+
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function clamp(val, min, max) {
+      return Math.max(min, Math.min(max, val));
+    }
+
+    function lerp(start, end, t) {
+      return start + (end - start) * t;
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }
+
+    function update() {
+      ticking = false;
+      const scrollTop = window.pageYOffset;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = clamp(scrollTop / maxScroll, 0, 1);
+
+      // -- Scroll hint fade out
+      scrollHint.style.opacity = progress < 0.05 ? 1 : Math.max(0, 1 - (progress - 0.05) / 0.05);
+
+      // -- Stem appear
+      stem.style.opacity = progress > 0.02 ? 1 : 0;
+
+      // -- Sepals
+      allSepals.forEach(s => {
+        s.style.opacity = progress > 0.03 ? 1 : 0;
+      });
+
+      // -- Glow intensify
+      const glowProgress = clamp((progress - 0.1) / 0.6, 0, 1);
+      glow.style.opacity = glowProgress * 0.8;
+      glow.style.transform = `scale(${1 + glowProgress * 1.5})`;
+
+      // -- Petals opening
+      allPetals.forEach(petal => {
+        const openStart = parseFloat(petal.dataset.openStart);
+        const openEnd = parseFloat(petal.dataset.openEnd);
+        const angle = parseFloat(petal.dataset.angle);
+        const petalProgress = clamp((progress - openStart) / (openEnd - openStart), 0, 1);
+        const eased = easeInOutCubic(petalProgress);
+
+        // From 85deg (closed) to -25deg (fully open, slightly curled back)
+        const rotateX = lerp(85, -25, eased);
+        // Slight splay outward
+        const translateY = lerp(0, -8 * eased, eased);
+
+        petal.style.transform = `rotate(${angle}deg) translateY(${translateY}px) rotateX(${rotateX}deg)`;
+
+        // Subtle brightness variation
+        const brightness = lerp(0.7, 1.1, eased);
+        petal.style.filter = `brightness(${brightness})`;
+      });
+
+      // -- Center bloom
+      const centerProgress = clamp((progress - 0.45) / 0.25, 0, 1);
+      const centerEased = easeInOutCubic(centerProgress);
+      roseCenter.style.opacity = centerEased;
+      roseCenter.style.transform = `scale(${0.5 + centerEased * 0.5})`;
+
+      // -- Dew drops
+      dews.forEach((d, i) => {
+        const dewStart = 0.3 + i * 0.08;
+        d.style.opacity = clamp((progress - dewStart) / 0.15, 0, 0.9);
+      });
+
+      // -- Background warmth
+      const warmth = clamp(progress / 0.7, 0, 1);
+      const bgR = Math.round(lerp(10, 30, warmth));
+      const bgG = Math.round(lerp(0, 5, warmth));
+      const bgB = Math.round(lerp(0, 10, warmth));
+      bg.style.background = `radial-gradient(ellipse at 50% 60%, rgb(${bgR*2},${bgG},${bgB}) 0%, rgb(${bgR},0,0) 70%)`;
+
+      // -- Message reveal
+      const msgProgress = clamp((progress - 0.78) / 0.12, 0, 1);
+      if (msgProgress > 0) {
+        message.classList.add('visible');
+        // Fade out rose
+        const roseFade = clamp((progress - 0.80) / 0.10, 0, 1);
+        document.getElementById('rose').style.opacity = 1 - roseFade * 0.85;
+        document.getElementById('rose').style.transform = `scale(${1 + roseFade * 0.3})`;
+        document.getElementById('rose').style.filter = `blur(${roseFade * 8}px)`;
+      } else {
+        message.classList.remove('visible');
+        document.getElementById('rose').style.opacity = 1;
+        document.getElementById('rose').style.transform = 'scale(1)';
+        document.getElementById('rose').style.filter = 'blur(0px)';
+      }
+
+      // -- Falling petals at the end
+      fallingPetals.forEach(fp => {
+        const fallingStart = 0.82;
+        const fpProgress = clamp((progress - fallingStart) / 0.18, 0, 1);
+        if (fpProgress > 0) {
+          const delay = parseFloat(fp.dataset.delay) * 0.05;
+          const adj = clamp((fpProgress - delay) / (1 - delay), 0, 1);
+          const speed = parseFloat(fp.dataset.speed);
+          const sway = parseFloat(fp.dataset.sway);
+          fp.style.opacity = adj > 0.05 ? (adj < 0.9 ? 0.8 : lerp(0.8, 0, (adj - 0.9) / 0.1)) : 0;
+          fp.style.top = `${adj * 110}vh`;
+          fp.style.transform = `translateX(${Math.sin(adj * speed) * sway}px) rotate(${adj * 360}deg)`;
+        } else {
+          fp.style.opacity = 0;
+        }
+      });
+
+      // -- Sparkles visibility
+      const sparkles = document.querySelectorAll('.sparkle');
+      sparkles.forEach(s => {
+        s.style.display = progress > 0.25 && progress < 0.85 ? 'block' : 'none';
+      });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update(); // initial state
+  </script>
+</body>
+</html>
